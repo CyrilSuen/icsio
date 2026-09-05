@@ -53,7 +53,7 @@ export function PublicGallery() {
   return (
     <div className="min-h-full overflow-y-auto bg-[var(--bg-base)]">
       <header className="sticky top-0 z-10 border-b border-[var(--border-subtle)] bg-[var(--bg-base)]/85 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-[1120px] items-center gap-3 px-4 md:px-6">
+        <div className="mx-auto flex h-14 max-w-[1280px] items-center gap-3 px-4 md:px-6">
           <a href="/" className="flex items-center gap-2">
             <Logo size={24} />
             <span className="text-[16px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
@@ -71,7 +71,7 @@ export function PublicGallery() {
           </a>
         </div>
 
-        <div className="mx-auto flex max-w-[1120px] items-center gap-4 px-4 pb-3 md:px-6">
+        <div className="mx-auto flex max-w-[1280px] items-center gap-4 px-4 pb-3 md:px-6">
           <nav className="flex items-center gap-1 overflow-x-auto">
             <NavItem active={activeFolder === null} onClick={() => setActiveFolder(null)}>
               {t('public.home')}
@@ -87,7 +87,7 @@ export function PublicGallery() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-[860px] px-4 py-8 md:px-6 md:py-10">
+      <main className="mx-auto max-w-[1280px] px-4 py-8 md:px-6 md:py-10">
         <div className="mb-8 md:mb-10">
           <h1 className="text-[24px] font-semibold tracking-[-0.02em] text-[var(--text-primary)] md:text-[30px]">
             {t('common.product_name')}
