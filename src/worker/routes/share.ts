@@ -1,7 +1,7 @@
 import { Hono, type Context } from 'hono'
 import { setCookie } from 'hono/cookie'
 import { LIMITS } from '@shared/constants'
-import type { PublicNote, ShareInfo } from '@shared/types'
+import type { PublicNote, PublicNoteListItem, ShareInfo } from '@shared/types'
 import type { AppBindings } from '../env'
 import { ApiError } from '../lib/errors'
 import { isValidSlug, newSlug } from '../lib/id'
@@ -34,6 +34,7 @@ interface ShareRow {
   password_hash: string | null
   expires_at: number | null
   views: number
+  listed: number
   created_at: number
 }
 
@@ -43,6 +44,7 @@ function toShareInfo(row: ShareRow, origin: string): ShareInfo {
     noteId: row.note_id,
     url: `${origin}/s/${row.slug}`,
     hasPassword: Boolean(row.password_hash),
+    listed: Boolean(row.listed),
     expiresAt: row.expires_at,
     views: row.views,
     createdAt: row.created_at,
@@ -65,7 +67,7 @@ shareManageRoutes.get('/:noteId', async (c) => {
 shareManageRoutes.post('/:noteId', async (c) => {
   const userId = c.get('userId')
   const noteId = c.req.param('noteId')
-  const body = await readJson<{ password?: string | null; expiresIn?: number | null }>(c, JSON_BODY_LIMITS.small)
+  const body = await readJson<{ password?: string | null; expiresIn?: number | null; listed?: boolean }>(c, JSON_BODY_LIMITS.small)
 
   const note = await c.env.DB.prepare(
     `SELECT id FROM notes WHERE id = ?1 AND user_id = ?2 AND deleted_at IS NULL`,
@@ -91,6 +93,9 @@ shareManageRoutes.post('/:noteId', async (c) => {
   ) {
     throw ApiError.badRequest('expiresIn must be a non-negative number or null')
   }
+  if (body.listed !== undefined && typeof body.listed !== 'boolean') {
+    throw ApiError.badRequest('listed must be a boolean')
+  }
   const expiresAt =
     typeof body.expiresIn === 'number' && body.expiresIn > 0
         ? Date.now() + Math.min(body.expiresIn, 365 * 24 * 60 * 60 * 1000)
@@ -104,12 +109,16 @@ shareManageRoutes.post('/:noteId', async (c) => {
         ? await hashPassword(body.password)
         : null
 
+  const listedValue = body.listed ? 1 : 0
+  const listedProvided = body.listed !== undefined ? 1 : 0
+
   const written = await c.env.DB.prepare(
-    `INSERT INTO shares (slug, note_id, user_id, password_hash, expires_at, views, created_at)
-     VALUES (?1, ?2, ?3, ?4, ?5, 0, ?6)
+    `INSERT INTO shares (slug, note_id, user_id, password_hash, expires_at, views, listed, created_at)
+     VALUES (?1, ?2, ?3, ?4, ?5, 0, ?6, ?7)
      ON CONFLICT(note_id) DO UPDATE SET
-       password_hash = CASE WHEN ?7 = 1 THEN excluded.password_hash ELSE shares.password_hash END,
-       expires_at = CASE WHEN ?8 = 1 THEN excluded.expires_at ELSE shares.expires_at END
+       password_hash = CASE WHEN ?8 = 1 THEN excluded.password_hash ELSE shares.password_hash END,
+       expires_at = CASE WHEN ?9 = 1 THEN excluded.expires_at ELSE shares.expires_at END,
+       listed = CASE WHEN ?10 = 1 THEN excluded.listed ELSE shares.listed END
      WHERE shares.user_id = excluded.user_id`,
   )
     .bind(
@@ -118,9 +127,11 @@ shareManageRoutes.post('/:noteId', async (c) => {
       userId,
       passwordHash,
       expiresAt,
+      listedValue,
       Date.now(),
       replacePassword ? 1 : 0,
       body.expiresIn !== undefined ? 1 : 0,
+      listedProvided,
     )
     .run()
   if (!written.meta.changes) throw new ApiError(409, 'conflict', 'Share state changed. Refresh and try again')
@@ -241,6 +252,49 @@ shareRoutes.post('/:slug', async (c) => {
     share: { slug },
   }
   return c.json(body_)
+})
+
+
+shareRoutes.get('/', async (c) => {
+  const { results } = await c.env.DB.prepare(
+    `SELECT s.slug, n.title, n.excerpt, n.updated_at, u.name, u.username, u.avatar_url,
+            f.name AS folder_name,
+            COALESCE((SELECT GROUP_CONCAT(t.name) FROM note_tags nt
+                       JOIN tags t ON t.id = nt.tag_id
+                      WHERE nt.note_id = n.id), '') AS tag_names
+       FROM shares s
+       JOIN notes n ON n.id = s.note_id AND n.user_id = s.user_id
+       JOIN users u ON u.id = n.user_id
+       LEFT JOIN folders f ON f.id = n.folder_id
+      WHERE s.listed = 1 AND n.deleted_at IS NULL
+        AND (s.expires_at IS NULL OR s.expires_at > ?1)
+      ORDER BY n.updated_at DESC
+      LIMIT 500`,
+  )
+    .bind(Date.now())
+    .all<{
+      slug: string
+      title: string
+      excerpt: string
+      updated_at: number
+      name: string
+      username: string
+      avatar_url: string
+      folder_name: string | null
+      tag_names: string
+    }>()
+
+  const notes: PublicNoteListItem[] = results.map((row) => ({
+    slug: row.slug,
+    title: row.title,
+    excerpt: row.excerpt,
+    updatedAt: row.updated_at,
+    author: { name: row.name || row.username, avatarUrl: row.avatar_url },
+    tags: row.tag_names ? row.tag_names.split(',').filter(Boolean) : [],
+    folder: row.folder_name,
+  }))
+
+  return c.json(notes)
 })
 
 

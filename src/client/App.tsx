@@ -15,6 +15,9 @@ const AppShell = lazy(() =>
 const SharePage = lazy(() =>
   import('./features/share/SharePage').then((module) => ({ default: module.SharePage })),
 )
+const PublicGallery = lazy(() =>
+  import('./features/share/PublicGallery').then((module) => ({ default: module.PublicGallery })),
+)
 
 export function App() {
 
@@ -25,6 +28,7 @@ export function App() {
     const match = /^\/s\/([A-Za-z0-9_-]+)/.exec(location.pathname)
     return match?.[1] ?? null
   })
+  const [isLogin] = useState(() => /^\/login\/?$/.test(location.pathname))
 
   useEffect(() => {
     if (shareSlug) return
@@ -68,7 +72,14 @@ export function App() {
     <>
       <ErrorBoundary>
         {status === 'loading' && <div className="h-full" />}
-        {status === 'anonymous' && <LoginPage />}
+        {status === 'anonymous' &&
+          (isLogin ? (
+            <LoginPage />
+          ) : (
+            <Suspense fallback={<PageFallback />}>
+              <PublicGallery />
+            </Suspense>
+          ))}
         {status === 'authed' && (
           <Suspense fallback={<PageFallback />}>
             <AppShell />

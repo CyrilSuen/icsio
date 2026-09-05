@@ -25,6 +25,7 @@ run_worker_first = [
 [[d1_databases]]
 binding = "DB"
 database_name = "icsio-db"
+database_id = "38a1fdcb-88db-43d9-ae17-e192cee356d9"
 
 [[r2_buckets]]
 binding = "FILES"
@@ -32,6 +33,7 @@ bucket_name = "icsio-files"
 
 [[kv_namespaces]]
 binding = "OAUTH_KV"
+id = "28d5be0c9d0c48e19b44c119c43d41be"
 
 [[durable_objects.bindings]]
 name = "SYNC_HUB"

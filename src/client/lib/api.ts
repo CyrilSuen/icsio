@@ -23,6 +23,7 @@ import type {
   PasswordLoginResult,
   PublicUser,
   PublicNote,
+  PublicNoteListItem,
   SearchResponse,
   SessionInfo,
   ShareInfo,
@@ -478,11 +479,13 @@ export const api = {
   share: {
     get: (noteId: string, signal?: AbortSignal) =>
       request<{ share: ShareInfo | null }>(`/api/share/${noteId}`, { signal }),
-    create: (noteId: string, body: { password?: string | null; expiresIn?: number | null }) =>
+    create: (noteId: string, body: { password?: string | null; expiresIn?: number | null; listed?: boolean }) =>
       request<{ share: ShareInfo }>(`/api/share/${noteId}`, { method: 'POST', body }),
     remove: (noteId: string) => request<{ ok: true }>(`/api/share/${noteId}`, { method: 'DELETE' }),
     read: (slug: string, password?: string, signal?: AbortSignal) =>
       request<PublicNote>(`/api/public/${slug}`, { method: 'POST', body: { password }, signal }),
+    list: (signal?: AbortSignal) =>
+      request<PublicNoteListItem[]>(`/api/public`, { signal }),
   },
 
   transfer: {

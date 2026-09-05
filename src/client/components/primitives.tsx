@@ -1,10 +1,16 @@
-import { useState, type ButtonHTMLAttributes, type ReactNode, type Ref } from 'react'
+import { useId, useState, type ButtonHTMLAttributes, type ReactNode, type Ref } from 'react'
 import { cn } from '../lib/cn'
 import { prettyCombo } from '../lib/hotkeys'
 import { resolveAvatarSource } from '../lib/avatar'
 
 
+const LOGO_BARS: ReadonlyArray<readonly [number, number, number, number]> = [
+  [5, 7, 10, 2], [5, 9, 10, 2], [9, 11, 4, 10], [5, 21, 10, 2], [5, 23, 10, 2],
+  [17, 7, 10, 2], [17, 9, 10, 2], [17, 11, 4, 10], [17, 21, 10, 2], [17, 23, 10, 2],
+]
+
 export function Logo({ size = 20, className }: { size?: number; className?: string }) {
+  const gradientId = useId().replace(/[^a-zA-Z0-9_-]/g, '')
   return (
     <svg
       viewBox="0 0 32 32"
@@ -13,25 +19,16 @@ export function Logo({ size = 20, className }: { size?: number; className?: stri
       className={cn('ink-logo', className)}
       aria-hidden="true"
     >
-      <rect
-        x="2.5"
-        y="2.5"
-        width="27"
-        height="27"
-        rx="8.5"
-        className="fill-[var(--text-primary)]"
-      />
-      <g className="fill-[var(--brand-accent)]">
-        <circle cx="12.6" cy="9.6" r="1.9" />
-        <rect x="11.3" y="13.6" width="2.6" height="10.2" rx="1.3" />
-      </g>
-      <path
-        d="M24.50 16.78 A4.3 4.3 0 1 0 24.50 20.42"
-        fill="none"
-        strokeWidth="2.6"
-        strokeLinecap="round"
-        className="stroke-[var(--brand-accent)]"
-      />
+      <defs>
+        <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#5a9cf8" />
+          <stop offset="1" stopColor="#1d4ed8" />
+        </linearGradient>
+      </defs>
+      <rect x="2.5" y="2.5" width="27" height="27" rx="8.5" fill={`url(#${gradientId})`} />
+      {LOGO_BARS.map(([x, y, width, height], index) => (
+        <rect key={index} x={x} y={y} width={width} height={height} fill="#ffffff" />
+      ))}
     </svg>
   )
 }

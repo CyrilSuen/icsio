@@ -185,6 +185,7 @@ export const SCHEMA_STATEMENTS: readonly string[] = [
     password_hash TEXT,
     expires_at INTEGER,
     views INTEGER NOT NULL DEFAULT 0,
+    listed INTEGER NOT NULL DEFAULT 0,
     created_at INTEGER NOT NULL
   )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS idx_shares_note ON shares(note_id)`,
@@ -466,6 +467,13 @@ const SCHEMA_MIGRATIONS: readonly SchemaMigration[] = [
     ],
   },
   {
+    version: 12,
+    skipIfColumnExists: { table: 'shares', column: 'listed' },
+    statements: [
+      `ALTER TABLE shares ADD COLUMN listed INTEGER NOT NULL DEFAULT 0`,
+    ],
+  },
+  {
     version: 11,
     statements: [
       `CREATE TABLE IF NOT EXISTS totp_credentials (
@@ -539,7 +547,7 @@ const REQUIRED_COLUMNS: Readonly<Record<string, readonly string[]>> = {
   import_mappings: ['user_id', 'entity', 'source_id', 'target_id', 'updated_at'],
   backup_targets: ['id', 'user_id', 'type', 'name', 'enabled', 'config', 'secret', 'last_run_at', 'last_status', 'last_error', 'created_at', 'updated_at'],
   backup_runs: ['id', 'user_id', 'trigger', 'status', 'started_at', 'finished_at', 'note_count', 'file_count', 'bytes', 'detail'],
-  shares: ['slug', 'note_id', 'user_id', 'password_hash', 'expires_at', 'views', 'created_at'],
+  shares: ['slug', 'note_id', 'user_id', 'password_hash', 'expires_at', 'views', 'listed', 'created_at'],
   share_asset_sessions: ['id', 'slug', 'password_hash', 'expires_at', 'created_at'],
   changes: ['seq', 'user_id', 'entity', 'entity_id', 'op', 'at'],
   sessions: ['id', 'user_id', 'expires_at', 'created_at'],

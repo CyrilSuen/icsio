@@ -463,6 +463,7 @@ export interface ShareInfo {
   noteId: string
   url: string
   hasPassword: boolean
+  listed: boolean
   expiresAt: number | null
   views: number
   createdAt: number
@@ -476,6 +477,16 @@ export interface PublicNote {
   author: { name: string; avatarUrl: string }
   site: { name: string }
   share: { slug: string }
+}
+
+export interface PublicNoteListItem {
+  slug: string
+  title: string
+  excerpt: string
+  updatedAt: number
+  author: { name: string; avatarUrl: string }
+  tags: string[]
+  folder: string | null
 }
 
 

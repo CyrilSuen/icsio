@@ -27,6 +27,7 @@ import type {
   Note,
   NoteVersion,
   PublicNote,
+  PublicNoteListItem,
   SearchResponse,
   SessionInfo,
   ShareInfo,
@@ -814,6 +815,7 @@ export function createDemoBackend(): DemoBackend {
       noteId,
       url: '',
       hasPassword: Boolean(password),
+      listed: body.listed === undefined ? existing?.info.listed ?? false : Boolean(body.listed),
       expiresAt,
       views: existing?.info.views ?? 0,
       createdAt: existing?.info.createdAt ?? Date.now(),
@@ -847,6 +849,26 @@ export function createDemoBackend(): DemoBackend {
       share: { slug: share.info.slug },
     }
     return c.json(response)
+  })
+
+  app.get('/api/public', (c) => {
+    const items: PublicNoteListItem[] = []
+    for (const { info } of state.shares.values()) {
+      if (!info.listed) continue
+      if (info.expiresAt !== null && info.expiresAt <= Date.now()) continue
+      const note = state.notes.get(info.noteId)
+      if (!note || note.deletedAt !== null) continue
+      items.push({
+        slug: info.slug,
+        title: note.title,
+        excerpt: note.excerpt,
+        updatedAt: note.updatedAt,
+        author: { name: state.user.name, avatarUrl: state.user.avatarUrl },
+        tags: note.tags,
+        folder: null,
+      })
+    }
+    return c.json(items)
   })
 
   app.get('/api/backup/targets', (c) => c.json({ targets: [...state.backupTargets.values()] }))

@@ -35,6 +35,7 @@ export function SharePanel({ onClose }: {
     const [password, setPassword] = useState('');
     const [usePassword, setUsePassword] = useState(false);
     const [expiry, setExpiry] = useState('0');
+    const [listed, setListed] = useState(false);
     const [busy, setBusy] = useState<'save' | 'revoke' | null>(null);
     const [copied, setCopied] = useState(false);
     const copiedTimer = useRef(0);
@@ -61,6 +62,7 @@ export function SharePanel({ onClose }: {
         setPassword('');
         setUsePassword(false);
         setExpiry('0');
+        setListed(false);
         setCopied(false);
         window.clearTimeout(copiedTimer.current);
         api.share
@@ -71,6 +73,7 @@ export function SharePanel({ onClose }: {
             setShare(res.share);
             setUsePassword(Boolean(res.share?.hasPassword));
             setExpiry(res.share?.expiresAt ? KEEP_CURRENT_EXPIRY : '0');
+            setListed(Boolean(res.share?.listed));
         })
             .catch((error) => {
             if (!cancelled && loadEpoch.current === epoch && noteIdRef.current === noteId)
@@ -111,6 +114,7 @@ export function SharePanel({ onClose }: {
             const res = await api.share.create(noteId, {
                 password: usePassword ? password || undefined : null,
                 expiresIn: expiresInForSelection(expiry),
+                listed,
             });
             if (mutationEpoch.current !== epoch || noteIdRef.current !== noteId)
                 return;
@@ -158,6 +162,7 @@ export function SharePanel({ onClose }: {
             setShare(null);
             setUsePassword(false);
             setExpiry('0');
+            setListed(false);
             await api.share.remove(noteId);
             if (mutationEpoch.current !== epoch || noteIdRef.current !== noteId)
                 return;
@@ -243,6 +248,15 @@ export function SharePanel({ onClose }: {
               <p className="mt-0.5 text-[11.5px] text-[var(--text-tertiary)]">{t("share.require_a_passcode_to_view_this_note")}</p>
             </div>
             <Switch checked={usePassword} disabled={busy !== null} onChange={setUsePassword} label={t("common.access_passcode")}/>
+          </div>
+
+          <div className="flex items-center justify-between gap-4 py-1">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 text-[13px] font-medium">
+                <Globe size={12} className="text-[var(--text-tertiary)]"/>{t("share.listed_public")}</div>
+              <p className="mt-0.5 text-[11.5px] text-[var(--text-tertiary)]">{t("share.listed_public_hint")}</p>
+            </div>
+            <Switch checked={listed} disabled={busy !== null} onChange={setListed} label={t("share.listed_public")}/>
           </div>
 
           {usePassword && (<Field label={t("share.passcode")} hint={share?.hasPassword ? t("share.leave_blank_to_keep_the_current_passcode") : undefined}>

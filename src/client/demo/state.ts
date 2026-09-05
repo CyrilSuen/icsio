@@ -70,6 +70,7 @@ export function createDemoState(): DemoState {
     noteId: notes[0]!.id,
     url: '/s/welcome',
     hasPassword: false,
+    listed: false,
     expiresAt: null,
     views: 12,
     createdAt: now - 86_400_000 * 4,

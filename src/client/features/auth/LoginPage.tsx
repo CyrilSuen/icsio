@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, type CSSProperties } from 'react'
 import { ArrowLeft, KeyRound, Loader2, TriangleAlert } from 'lucide-react'
 import { LIMITS } from '@shared/constants'
 import type { TotpLoginChallenge } from '@shared/types'
@@ -9,6 +9,32 @@ import { ApiError } from '../../lib/api'
 import { t } from '../../lib/i18n'
 import { initialLoginCredentials } from '../../lib/runtime'
 import { useSession } from '../../store/session'
+
+const CHIP_THEME = {
+  '--bg-base': '#eef3fb',
+  '--bg-surface': 'rgba(255, 255, 255, 0.75)',
+  '--bg-raised': '#ffffff',
+  '--bg-inset': '#f4f7fc',
+  '--bg-hover': 'rgba(37, 99, 235, 0.06)',
+  '--bg-active': 'rgba(37, 99, 235, 0.10)',
+  '--border-subtle': 'rgba(37, 99, 235, 0.10)',
+  '--border-default': 'rgba(37, 99, 235, 0.16)',
+  '--border-strong': 'rgba(37, 99, 235, 0.28)',
+  '--text-primary': '#0f1d3a',
+  '--text-secondary': '#3a4a68',
+  '--text-tertiary': '#64748b',
+  '--text-quaternary': '#94a3b8',
+  '--accent': '#2563eb',
+  '--accent-hover': '#1d4ed8',
+  '--accent-contrast': '#ffffff',
+  '--accent-ring': 'rgba(37, 99, 235, 0.16)',
+  '--brand-accent': '#2563eb',
+  '--danger': '#ef4444',
+  '--success': '#16a34a',
+  '--shadow-sm': '0 1px 2px rgba(15, 23, 42, 0.06)',
+  '--shadow-pop': '0 0 0 1px rgba(37,99,235,0.10), 0 12px 32px -12px rgba(15,23,42,0.18)',
+  '--shadow-modal': '0 0 0 1px rgba(37,99,235,0.10), 0 24px 60px -24px rgba(15,23,42,0.22)',
+} as CSSProperties
 
 export function LoginPage() {
   const initialCredentials = initialLoginCredentials()
@@ -88,28 +114,31 @@ export function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-full flex-col items-center justify-center overflow-y-auto px-4 pt-[calc(28px+env(safe-area-inset-top))] pb-[calc(24px+env(safe-area-inset-bottom))] md:px-6 md:py-10">
-      <Backdrop />
+    <div
+      className="relative flex min-h-full flex-col items-center justify-center overflow-y-auto px-4 pt-[calc(24px+env(safe-area-inset-top))] pb-[calc(24px+env(safe-area-inset-bottom))] md:px-6"
+      style={CHIP_THEME}
+    >
+      <CircuitBackdrop />
 
       <div className="anim-rise relative w-full max-w-[400px]">
-        <div className="rounded-[26px] border border-[var(--border-default)] bg-[var(--bg-surface)] p-7 shadow-[var(--shadow-modal)] md:p-9">
+        <a
+          href="/"
+          className="mb-5 inline-flex items-center gap-1.5 text-[12px] text-[var(--text-quaternary)] transition-colors hover:text-[var(--accent)]"
+        >
+          <ArrowLeft size={13} />
+          {t('public.back_home')}
+        </a>
+
+        <div className="relative overflow-hidden rounded-[22px] border border-white/70 bg-white/70 p-7 shadow-[0_20px_50px_-20px_rgba(15,23,42,0.35)] backdrop-blur-xl md:p-9">
           <div className="mb-7 flex flex-col items-center text-center">
-            <div
-              className={cn(
-                'mb-6 flex size-16 items-center justify-center rounded-[20px]',
-                'border border-[var(--border-default)] bg-[var(--bg-raised)]',
-                'text-[var(--accent)] shadow-[var(--shadow-pop)]',
-              )}
-            >
-              <Logo size={30} />
-            </div>
+            <ChipBadge />
             <h1
-              className="text-[30px] font-semibold tracking-[0.01em] text-[var(--text-primary)]"
-              style={{ fontFamily: 'var(--font-serif)' }}
+              className="text-[28px] font-semibold tracking-[0.02em] text-[var(--text-primary)]"
+              style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' }}
             >
               {t("common.product_name")}
             </h1>
-            <p className="mt-2.5 text-[13px] leading-relaxed text-[var(--text-tertiary)]">
+            <p className="mt-2.5 text-[12.5px] leading-relaxed text-[var(--text-tertiary)]">
               {challenge
                 ? t('auth.two_step_verification_description')
                 : firstRun
@@ -276,26 +305,57 @@ export function LoginPage() {
   )
 }
 
+function ChipBadge() {
+  const pins = [
+    'left-[16%] top-[-6px] h-[6px] w-px',
+    'left-1/2 top-[-8px] h-[8px] w-px -translate-x-1/2',
+    'right-[16%] top-[-6px] h-[6px] w-px',
+    'left-[16%] bottom-[-6px] h-[6px] w-px',
+    'left-1/2 bottom-[-8px] h-[8px] w-px -translate-x-1/2',
+    'right-[16%] bottom-[-6px] h-[6px] w-px',
+    'left-[-7px] top-1/2 h-px w-[7px] -translate-y-1/2',
+    'right-[-7px] top-1/2 h-px w-[7px] -translate-y-1/2',
+  ]
+  return (
+    <div className="relative mb-6">
+      <Logo size={56} />
+      {pins.map((pin, index) => (
+        <span key={index} className={cn('absolute bg-[#2563eb]/70', pin)} />
+      ))}
+    </div>
+  )
+}
 
-function Backdrop() {
+function CircuitBackdrop() {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
       <div
-        className="absolute left-1/2 top-[-24%] size-[760px] -translate-x-1/2 rounded-full opacity-[0.16] blur-[130px]"
-        style={{ background: 'var(--accent)' }}
+        className="absolute left-1/2 top-[-20%] size-[720px] -translate-x-1/2 rounded-full opacity-[0.22] blur-[130px]"
+        style={{ background: '#3b82f6' }}
       />
       <div
-        className="absolute bottom-[-28%] right-[-12%] size-[520px] rounded-full opacity-[0.08] blur-[120px]"
-        style={{ background: 'var(--accent)' }}
+        className="absolute bottom-[-26%] right-[-12%] size-[520px] rounded-full opacity-[0.14] blur-[120px]"
+        style={{ background: '#22d3ee' }}
       />
-      <div
-        className="absolute inset-0 opacity-[0.6]"
-        style={{
-          backgroundImage: 'radial-gradient(var(--border-subtle) 1px, transparent 1px)',
-          backgroundSize: '22px 22px',
-          maskImage: 'radial-gradient(ellipse 70% 60% at 50% 45%, transparent 30%, #000 100%)',
-        }}
-      />
+      <svg
+        className="absolute inset-0 h-full w-full opacity-[0.10]"
+        viewBox="0 0 1200 800"
+        preserveAspectRatio="xMidYMid slice"
+        fill="none"
+      >
+        <path d="M0 180 H320 L360 220 H520 L560 180 H1200" stroke="#2563eb" strokeWidth="1" />
+        <path d="M0 640 H260 L300 600 H680 L720 640 H1200" stroke="#2563eb" strokeWidth="1" />
+        <path d="M200 0 V220 L240 260 V800" stroke="#2563eb" strokeWidth="1" />
+        <path d="M980 0 V300 L940 340 V800" stroke="#2563eb" strokeWidth="1" />
+        <path d="M520 800 V620 L480 580 V0" stroke="#22d3ee" strokeWidth="1" />
+        <circle cx="320" cy="220" r="3" fill="#2563eb" />
+        <circle cx="560" cy="180" r="3" fill="#2563eb" />
+        <circle cx="260" cy="600" r="3" fill="#2563eb" />
+        <circle cx="680" cy="640" r="3" fill="#2563eb" />
+        <circle cx="240" cy="260" r="3" fill="#2563eb" />
+        <circle cx="940" cy="340" r="3" fill="#2563eb" />
+        <circle cx="480" cy="580" r="3" fill="#22d3ee" />
+      </svg>
     </div>
   )
 }
