@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="240" viewBox="0 0 720 240" role="img" aria-labelledby="title description">
+  <title id="title">icsio Markdown image example</title>
+  <desc id="description">The icsio project logo beside text confirming that Markdown images render correctly.</desc>
+  <rect width="720" height="240" rx="28" fill="#f5f4f1"/>
+  <g transform="translate(42 42) scale(4.875)">
+    <rect x="2.5" y="2.5" width="27" height="27" rx="8.5" fill="#202124"/>
+    <g fill="#bb4430">
+      <circle cx="12.6" cy="9.6" r="1.9"/>
+      <rect x="11.3" y="13.6" width="2.6" height="10.2" rx="1.3"/>
+    </g>
+    <path d="M24.50 16.78 A4.3 4.3 0 1 0 24.50 20.42" fill="none" stroke="#bb4430" stroke-width="2.6" stroke-linecap="round"/>
+  </g>
+  <text x="238" y="112" fill="#202124" font-family="Inter, system-ui, sans-serif" font-size="42" font-weight="700">icsio</text>
+  <text x="238" y="158" fill="#686763" font-family="Inter, system-ui, sans-serif" font-size="24">Markdown image example</text>
+</svg>
