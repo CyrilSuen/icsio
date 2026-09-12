@@ -45,7 +45,7 @@ export function Logo({ size = 20, className }: { size?: number; className?: stri
       <g clipPath={`url(#${clipId})`}>
         <rect x="5" y="5" width="54" height="30" fill={`url(#${sheenId})`} />
       </g>
-      <g fill="none" stroke="#ffffff" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round">
+      <g fill="none" stroke="#ffffff" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round">
         <line x1="19.5" y1="24" x2="19.5" y2="40" />
         <line x1="15" y1="24" x2="24" y2="24" />
         <line x1="15" y1="40" x2="24" y2="40" />

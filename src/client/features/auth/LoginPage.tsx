@@ -115,7 +115,7 @@ export function LoginPage() {
 
   return (
     <div
-      className="relative flex min-h-full flex-col items-center justify-center overflow-y-auto px-4 pt-[calc(24px+env(safe-area-inset-top))] pb-[calc(24px+env(safe-area-inset-bottom))] md:px-6"
+      className="relative flex min-h-full flex-col items-center justify-center overflow-y-auto bg-[var(--bg-base)] px-4 pt-[calc(24px+env(safe-area-inset-top))] pb-[calc(24px+env(safe-area-inset-bottom))] md:px-6"
       style={CHIP_THEME}
     >
       <CircuitBackdrop />
@@ -129,13 +129,10 @@ export function LoginPage() {
           {t('public.back_home')}
         </a>
 
-        <div className="relative rounded-[24px] bg-gradient-to-br from-[#5b9bff] via-[#9dc3ff]/45 to-white/80 p-px shadow-[0_24px_60px_-24px_rgba(15,23,42,0.45)]">
-          <div className="relative overflow-hidden rounded-[23px] bg-white/80 p-7 backdrop-blur-xl md:p-9">
+        <div className="relative overflow-hidden rounded-[20px] border border-white/80 bg-white/85 p-8 shadow-[0_32px_80px_-40px_rgba(15,23,42,0.4)] backdrop-blur-2xl md:p-10">
           <div className="mb-7 flex flex-col items-center text-center">
             <ChipBadge />
-            <h1
-              className="bg-gradient-to-br from-[#2563eb] to-[#4f8df7] bg-clip-text text-[30px] font-bold tracking-[-0.02em] text-transparent"
-            >
+            <h1 className="text-[26px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
               {t("common.product_name")}
             </h1>
             <p className="mt-2.5 text-[12.5px] leading-relaxed text-[var(--text-tertiary)]">
@@ -219,10 +216,10 @@ export function LoginPage() {
               disabled={busy}
               className={cn(
                 'flex h-11 w-full items-center justify-center gap-2.5 rounded-[var(--r-lg)]',
-                'bg-gradient-to-b from-[#4f8df7] to-[#2563eb] text-[13.5px] font-semibold text-white',
-                'shadow-[0_10px_24px_-10px_rgba(37,99,235,0.75)]',
-                'transition-[transform,opacity,filter] duration-[var(--dur-fast)] ease-[var(--ease-out)]',
-                'hover:brightness-105 active:translate-y-px disabled:opacity-50',
+                'bg-[#2563eb] text-[13.5px] font-medium text-white',
+                'shadow-[0_1px_2px_rgba(15,23,42,0.16),0_4px_14px_-4px_rgba(37,99,235,0.4)]',
+                'transition-[transform,opacity,background-color] duration-[var(--dur-fast)] ease-[var(--ease-out)]',
+                'hover:bg-[#1d4ed8] active:translate-y-px disabled:opacity-50',
               )}
             >
               {busy && <Loader2 size={16} className="animate-[ink-spin_.7s_linear_infinite]" />}
@@ -285,7 +282,6 @@ export function LoginPage() {
               </span>
             </div>
           )}
-          </div>
         </div>
 
         <div className="mt-6 space-y-2 text-center">
@@ -310,55 +306,38 @@ export function LoginPage() {
 function ChipBadge() {
   return (
     <div className="relative mb-7">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 size-[136px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(91,155,255,0.5),rgba(91,155,255,0)_68%)]"
-      />
-      <div className="relative inline-block">
-        <Logo size={84} />
-        <Pin className="left-[16%] top-[-9px] h-[7px] w-[3px]" />
-        <Pin className="left-1/2 top-[-12px] h-[10px] w-[3px] -translate-x-1/2" />
-        <Pin className="right-[16%] top-[-9px] h-[7px] w-[3px]" />
-        <Pin className="left-[16%] bottom-[-9px] h-[7px] w-[3px]" />
-        <Pin className="left-1/2 bottom-[-12px] h-[10px] w-[3px] -translate-x-1/2" />
-        <Pin className="right-[16%] bottom-[-9px] h-[7px] w-[3px]" />
-        <Pin className="left-[-11px] top-1/2 h-[3px] w-[11px] -translate-y-1/2" />
-        <Pin className="right-[-11px] top-1/2 h-[3px] w-[11px] -translate-y-1/2" />
+      <div className="relative inline-block drop-shadow-[0_12px_28px_rgba(37,99,235,0.18)]">
+        <Logo size={60} />
+        <Pin className="left-[16%] top-[-7px] h-[6px] w-[1.5px]" />
+        <Pin className="left-1/2 top-[-10px] h-[9px] w-[1.5px] -translate-x-1/2" />
+        <Pin className="right-[16%] top-[-7px] h-[6px] w-[1.5px]" />
+        <Pin className="left-[16%] bottom-[-7px] h-[6px] w-[1.5px]" />
+        <Pin className="left-1/2 bottom-[-10px] h-[9px] w-[1.5px] -translate-x-1/2" />
+        <Pin className="right-[16%] bottom-[-7px] h-[6px] w-[1.5px]" />
+        <Pin className="left-[-9px] top-1/2 h-[1.5px] w-[9px] -translate-y-1/2" />
+        <Pin className="right-[-9px] top-1/2 h-[1.5px] w-[9px] -translate-y-1/2" />
       </div>
     </div>
   )
 }
 
 function Pin({ className }: { className?: string }) {
-  return (
-    <span
-      aria-hidden="true"
-      className={cn(
-        'absolute rounded-full bg-gradient-to-b from-[#a9c8ff] to-[#3b82f6] shadow-[0_0_6px_rgba(59,130,246,0.6)]',
-        className,
-      )}
-    />
-  )
+  return <span aria-hidden="true" className={cn('absolute rounded-full bg-[#2563eb]/40', className)} />
 }
 
 function CircuitBackdrop() {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.55] [background-image:linear-gradient(rgba(59,130,246,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.05)_1px,transparent_1px)] [background-size:44px_44px]" />
       <div
-        className="absolute left-1/2 top-[-18%] size-[760px] -translate-x-1/2 rounded-full opacity-[0.24] blur-[130px]"
+        className="absolute left-1/2 top-[-22%] size-[680px] -translate-x-1/2 rounded-full opacity-[0.14] blur-[140px]"
         style={{ background: '#3b82f6' }}
       />
       <div
-        className="absolute bottom-[-24%] right-[-12%] size-[560px] rounded-full opacity-[0.16] blur-[120px]"
+        className="absolute bottom-[-28%] right-[-14%] size-[500px] rounded-full opacity-[0.10] blur-[140px]"
         style={{ background: '#22d3ee' }}
       />
-      <div
-        className="absolute bottom-[-8%] left-[-14%] size-[420px] rounded-full opacity-[0.14] blur-[110px]"
-        style={{ background: '#6366f1' }}
-      />
       <svg
-        className="absolute inset-0 h-full w-full opacity-[0.12]"
+        className="absolute inset-0 h-full w-full opacity-[0.06]"
         viewBox="0 0 1200 800"
         preserveAspectRatio="xMidYMid slice"
         fill="none"
@@ -368,17 +347,13 @@ function CircuitBackdrop() {
         <path d="M200 0 V220 L240 260 V800" stroke="#2563eb" strokeWidth="1" />
         <path d="M980 0 V300 L940 340 V800" stroke="#2563eb" strokeWidth="1" />
         <path d="M520 800 V620 L480 580 V0" stroke="#22d3ee" strokeWidth="1" />
-        <path d="M1200 340 H900 L860 380 H640" stroke="#22d3ee" strokeWidth="1" />
-        <path d="M0 500 H140 L180 460 H380" stroke="#6366f1" strokeWidth="1" />
-        <circle cx="320" cy="220" r="3" fill="#2563eb" className="animate-pulse" />
-        <circle cx="560" cy="180" r="3" fill="#2563eb" className="animate-pulse" />
-        <circle cx="260" cy="600" r="3" fill="#2563eb" />
-        <circle cx="680" cy="640" r="3" fill="#2563eb" className="animate-pulse" />
-        <circle cx="240" cy="260" r="3" fill="#2563eb" />
-        <circle cx="940" cy="340" r="3" fill="#2563eb" className="animate-pulse" />
-        <circle cx="480" cy="580" r="3" fill="#22d3ee" />
-        <circle cx="860" cy="380" r="3" fill="#22d3ee" className="animate-pulse" />
-        <circle cx="140" cy="460" r="3" fill="#6366f1" />
+        <circle cx="320" cy="220" r="2.5" fill="#2563eb" />
+        <circle cx="560" cy="180" r="2.5" fill="#2563eb" />
+        <circle cx="260" cy="600" r="2.5" fill="#2563eb" />
+        <circle cx="680" cy="640" r="2.5" fill="#2563eb" />
+        <circle cx="240" cy="260" r="2.5" fill="#2563eb" />
+        <circle cx="940" cy="340" r="2.5" fill="#2563eb" />
+        <circle cx="480" cy="580" r="2.5" fill="#22d3ee" />
       </svg>
     </div>
   )
