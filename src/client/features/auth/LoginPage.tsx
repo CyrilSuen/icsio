@@ -325,6 +325,27 @@ function Pin({ className }: { className?: string }) {
   return <span aria-hidden="true" className={cn('absolute rounded-full bg-[#2563eb]/40', className)} />
 }
 
+const CIRCUITS = [
+  { d: 'M0 180 H320 L360 220 H520 L560 180 H1200', color: '#2563eb', dur: '3.2s' },
+  { d: 'M0 640 H260 L300 600 H680 L720 640 H1200', color: '#2563eb', dur: '4s' },
+  { d: 'M200 0 V220 L240 260 V800', color: '#2563eb', dur: '3.6s' },
+  { d: 'M980 0 V300 L940 340 V800', color: '#2563eb', dur: '4.4s' },
+  { d: 'M520 800 V620 L480 580 V0', color: '#22d3ee', dur: '3.4s' },
+  { d: 'M0 440 H180 L220 400 H420 L460 440 H820', color: '#22d3ee', dur: '4.8s' },
+]
+
+const NODES = [
+  { x: 320, y: 220, color: '#2563eb' },
+  { x: 560, y: 180, color: '#2563eb' },
+  { x: 260, y: 600, color: '#2563eb' },
+  { x: 680, y: 640, color: '#2563eb' },
+  { x: 240, y: 260, color: '#2563eb' },
+  { x: 940, y: 340, color: '#2563eb' },
+  { x: 480, y: 580, color: '#22d3ee' },
+  { x: 220, y: 400, color: '#22d3ee' },
+  { x: 460, y: 440, color: '#22d3ee' },
+]
+
 function CircuitBackdrop() {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -337,23 +358,28 @@ function CircuitBackdrop() {
         style={{ background: '#22d3ee' }}
       />
       <svg
-        className="absolute inset-0 h-full w-full opacity-[0.06]"
+        className="absolute inset-0 h-full w-full"
         viewBox="0 0 1200 800"
         preserveAspectRatio="xMidYMid slice"
         fill="none"
       >
-        <path d="M0 180 H320 L360 220 H520 L560 180 H1200" stroke="#2563eb" strokeWidth="1" />
-        <path d="M0 640 H260 L300 600 H680 L720 640 H1200" stroke="#2563eb" strokeWidth="1" />
-        <path d="M200 0 V220 L240 260 V800" stroke="#2563eb" strokeWidth="1" />
-        <path d="M980 0 V300 L940 340 V800" stroke="#2563eb" strokeWidth="1" />
-        <path d="M520 800 V620 L480 580 V0" stroke="#22d3ee" strokeWidth="1" />
-        <circle cx="320" cy="220" r="2.5" fill="#2563eb" />
-        <circle cx="560" cy="180" r="2.5" fill="#2563eb" />
-        <circle cx="260" cy="600" r="2.5" fill="#2563eb" />
-        <circle cx="680" cy="640" r="2.5" fill="#2563eb" />
-        <circle cx="240" cy="260" r="2.5" fill="#2563eb" />
-        <circle cx="940" cy="340" r="2.5" fill="#2563eb" />
-        <circle cx="480" cy="580" r="2.5" fill="#22d3ee" />
+        {CIRCUITS.map((circuit, index) => (
+          <g key={index}>
+            <path d={circuit.d} stroke={circuit.color} strokeWidth="1" opacity="0.16" />
+            <path
+              d={circuit.d}
+              stroke={circuit.color}
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeDasharray="4 96"
+              opacity="0.7"
+              style={{ animation: `ink-signal ${circuit.dur} linear infinite` }}
+            />
+          </g>
+        ))}
+        {NODES.map((node, index) => (
+          <circle key={index} cx={node.x} cy={node.y} r="2.5" fill={node.color} opacity="0.5" />
+        ))}
       </svg>
     </div>
   )

@@ -12,6 +12,7 @@ export function PublicGallery() {
   const [notes, setNotes] = useState<PublicNoteListItem[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [activeFolder, setActiveFolder] = useState<string | null>(null)
+  const [activeTag, setActiveTag] = useState<string | null>(null)
   const [query, setQuery] = useState('')
 
   useEffect(() => {
@@ -32,14 +33,40 @@ export function PublicGallery() {
     for (const note of notes ?? []) {
       if (note.folder) set.add(note.folder)
     }
-    return [...set]
+    return [...set].sort()
   }, [notes])
+
+  const folderCounts = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const note of notes ?? []) {
+      if (note.folder) map.set(note.folder, (map.get(note.folder) ?? 0) + 1)
+    }
+    return map
+  }, [notes])
+
+  const tagCounts = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const note of notes ?? []) {
+      for (const tag of note.tags) map.set(tag, (map.get(tag) ?? 0) + 1)
+    }
+    return map
+  }, [notes])
+
+  const sortedTags = useMemo(
+    () =>
+      [...tagCounts.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 18)
+        .map(([tag]) => tag),
+    [tagCounts],
+  )
 
   const filtered = useMemo(() => {
     if (!notes) return null
     const q = query.trim().toLowerCase()
     return notes.filter((note) => {
       if (activeFolder && note.folder !== activeFolder) return false
+      if (activeTag && !note.tags.includes(activeTag)) return false
       if (!q) return true
       return (
         note.title.toLowerCase().includes(q) ||
@@ -48,79 +75,93 @@ export function PublicGallery() {
         note.tags.some((tag) => tag.toLowerCase().includes(q))
       )
     })
-  }, [notes, activeFolder, query])
+  }, [notes, activeFolder, activeTag, query])
+
+  const hasFilter = Boolean(activeFolder || activeTag || query.trim())
 
   return (
     <div className="min-h-full overflow-y-auto bg-[var(--bg-base)]">
       <header className="sticky top-0 z-10 border-b border-[var(--border-subtle)] bg-[var(--bg-base)]/85 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-[1120px] items-center gap-3 px-4 md:px-6">
+        <div className="mx-auto flex h-16 max-w-[1120px] items-center gap-4 px-4 md:px-6">
           <a href="/" className="flex items-center gap-2.5">
-            <Logo size={28} />
-            <span className="text-[16px] font-bold tracking-[-0.01em] text-[var(--text-primary)]">
+            <Logo size={30} />
+            <span className="text-[17px] font-bold tracking-[-0.01em] text-[var(--text-primary)]">
               {t('common.product_name')}
             </span>
           </a>
-        </div>
-
-        <div className="mx-auto flex max-w-[1120px] items-center gap-4 px-4 pb-3 md:px-6">
-          <nav className="flex items-center gap-1 overflow-x-auto">
-            <NavItem active={activeFolder === null} onClick={() => setActiveFolder(null)}>
+          <nav className="hidden items-center gap-1 md:flex">
+            <a
+              href="/"
+              className="rounded-full px-3 py-1.5 text-[13px] font-medium text-[var(--text-primary)]"
+            >
               {t('public.home')}
-            </NavItem>
-            {folders.map((folder) => (
-              <NavItem key={folder} active={activeFolder === folder} onClick={() => setActiveFolder(folder)}>
-                {folder}
-              </NavItem>
-            ))}
+            </a>
           </nav>
           <span className="flex-1" />
           <SearchBox value={query} onChange={setQuery} className="hidden md:block" />
           <a
             href="/login"
-            aria-label={t('public.sign_in')}
-            title={t('public.sign_in')}
-            className="inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-tertiary)] transition-colors hover:border-[#3b82f6]/40 hover:text-[#3b82f6]"
+            className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full border border-[var(--border-default)] bg-[var(--bg-surface)] px-4 text-[13px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[#3b82f6]/40 hover:text-[#3b82f6]"
           >
-            <LogIn size={17} />
+            <LogIn size={15} />
+            {t('public.sign_in')}
           </a>
         </div>
       </header>
 
-      <main className="mx-auto max-w-[1120px] px-4 py-8 md:px-6 md:py-10">
-        <div className="mb-8 md:mb-10">
-          <h1 className="text-[26px] font-semibold tracking-[-0.02em] text-[var(--text-primary)] md:text-[34px]">
+      <div className="mx-auto max-w-[1120px] px-4 md:px-6">
+        <section className="py-10 md:py-14">
+          <h1 className="text-[30px] font-bold tracking-[-0.02em] text-[var(--text-primary)] md:text-[40px]">
             {t('common.product_name')}
           </h1>
-          <p className="mt-2 text-[14px] leading-relaxed text-[var(--text-tertiary)] md:text-[15px]">
+          <p className="mt-3 max-w-[620px] text-[15px] leading-relaxed text-[var(--text-tertiary)]">
             {t('public.hero_subtitle')}
           </p>
-        </div>
+        </section>
 
         <div className="mb-6 md:hidden">
           <SearchBox value={query} onChange={setQuery} className="w-full" />
         </div>
 
-        {notes === null && !error ? (
-          <div className="flex justify-center py-24">
-            <Spinner size={20} />
-          </div>
-        ) : error ? (
-          <Empty art="notes" compact title={t('public.empty_title')} description={error} />
-        ) : !filtered || filtered.length === 0 ? (
-          <Empty
-            art="notes"
-            compact
-            title={t('public.empty_title')}
-            description={activeFolder || query ? t('public.empty_filter') : t('public.empty_desc')}
-          />
-        ) : (
-          <div className="divide-y divide-[var(--border-subtle)]">
-            {filtered.map((note) => (
-              <NoteRow key={note.slug} note={note} />
-            ))}
-          </div>
-        )}
-      </main>
+        <div className="grid gap-10 pb-16 md:grid-cols-[minmax(0,1fr)_300px]">
+          <main>
+            {notes === null && !error ? (
+              <div className="flex justify-center py-24">
+                <Spinner size={20} />
+              </div>
+            ) : error ? (
+              <Empty art="notes" compact title={t('public.empty_title')} description={error} />
+            ) : !filtered || filtered.length === 0 ? (
+              <Empty
+                art="notes"
+                compact
+                title={t('public.empty_title')}
+                description={hasFilter ? t('public.empty_filter') : t('public.empty_desc')}
+              />
+            ) : (
+              <div className="divide-y divide-[var(--border-subtle)]">
+                {filtered.map((note) => (
+                  <NoteRow key={note.slug} note={note} />
+                ))}
+              </div>
+            )}
+          </main>
+
+          <aside className="space-y-6">
+            <CategoriesWidget
+              folders={folders}
+              counts={folderCounts}
+              total={notes?.length ?? 0}
+              activeFolder={activeFolder}
+              onSelect={setActiveFolder}
+            />
+            {sortedTags.length > 0 && (
+              <TagsWidget tags={sortedTags} counts={tagCounts} activeTag={activeTag} onSelect={setActiveTag} />
+            )}
+            <AboutWidget />
+          </aside>
+        </div>
+      </div>
 
       <footer className="border-t border-[var(--border-subtle)] py-8 text-center text-[12px] text-[var(--text-quaternary)]">
         © {new Date().getFullYear()} {t('common.product_name')}
@@ -151,31 +192,125 @@ function SearchBox({
   )
 }
 
-function NavItem({
-  active,
-  onClick,
-  children,
+function Widget({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-[16px] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5">
+      <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-quaternary)]">
+        {title}
+      </h3>
+      {children}
+    </section>
+  )
+}
+
+function CategoriesWidget({
+  folders,
+  counts,
+  total,
+  activeFolder,
+  onSelect,
 }: {
-  active: boolean
-  onClick: () => void
-  children: React.ReactNode
+  folders: string[]
+  counts: Map<string, number>
+  total: number
+  activeFolder: string | null
+  onSelect: (folder: string | null) => void
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'relative shrink-0 whitespace-nowrap px-3 py-1.5 text-[13px] font-medium transition-colors',
-        active
-          ? 'text-[var(--text-primary)]'
-          : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]',
-      )}
-    >
-      {children}
-      {active && (
-        <span className="pointer-events-none absolute inset-x-2 bottom-0 h-[2px] rounded-full bg-gradient-to-r from-[#3b82f6] to-[#22d3ee]" />
-      )}
-    </button>
+    <Widget title={t('public.categories')}>
+      <button
+        type="button"
+        onClick={() => onSelect(null)}
+        className={cn(
+          'flex w-full items-center justify-between rounded-[8px] px-2.5 py-2 text-left text-[13px] transition-colors',
+          activeFolder === null ? 'bg-[#3b82f6]/10 font-medium text-[#2563eb]' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]',
+        )}
+      >
+        <span>{t('public.all')}</span>
+        <span className="text-[11px] tabular text-[var(--text-quaternary)]">{total}</span>
+      </button>
+      {folders.map((folder) => (
+        <button
+          key={folder}
+          type="button"
+          onClick={() => onSelect(folder)}
+          className={cn(
+            'flex w-full items-center justify-between rounded-[8px] px-2.5 py-2 text-left text-[13px] transition-colors',
+            activeFolder === folder
+              ? 'bg-[#3b82f6]/10 font-medium text-[#2563eb]'
+              : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]',
+          )}
+        >
+          <span className="truncate">{folder}</span>
+          <span className="text-[11px] tabular text-[var(--text-quaternary)]">{counts.get(folder) ?? 0}</span>
+        </button>
+      ))}
+    </Widget>
+  )
+}
+
+function TagsWidget({
+  tags,
+  counts,
+  activeTag,
+  onSelect,
+}: {
+  tags: string[]
+  counts: Map<string, number>
+  activeTag: string | null
+  onSelect: (tag: string | null) => void
+}) {
+  return (
+    <Widget title={t('public.tags')}>
+      <div className="flex flex-wrap gap-1.5">
+        {tags.map((tag) => {
+          const active = activeTag === tag
+          return (
+            <button
+              key={tag}
+              type="button"
+              onClick={() => onSelect(active ? null : tag)}
+              className={cn(
+                'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[12px] transition-colors',
+                active
+                  ? 'bg-[#2563eb] text-white'
+                  : 'bg-[var(--bg-inset)] text-[var(--text-tertiary)] hover:bg-[#3b82f6]/12 hover:text-[#2563eb]',
+              )}
+            >
+              #{tag}
+              <span className={cn('tabular', active ? 'text-white/70' : 'text-[var(--text-quaternary)]')}>
+                {counts.get(tag) ?? 0}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+    </Widget>
+  )
+}
+
+function AboutWidget() {
+  return (
+    <Widget title={t('public.about')}>
+      <div className="flex items-center gap-2.5">
+        <Logo size={34} />
+        <div className="min-w-0">
+          <div className="text-[13.5px] font-semibold text-[var(--text-primary)]">
+            {t('common.product_name')}
+          </div>
+          <div className="text-[11.5px] leading-relaxed text-[var(--text-tertiary)]">
+            {t('public.hero_subtitle')}
+          </div>
+        </div>
+      </div>
+      <a
+        href="/login"
+        className="mt-4 flex h-9 w-full items-center justify-center gap-2 rounded-[var(--r-md)] bg-[#2563eb] text-[13px] font-medium text-white transition-colors hover:bg-[#1d4ed8]"
+      >
+        <LogIn size={14} />
+        {t('public.sign_in')}
+      </a>
+    </Widget>
   )
 }
 
@@ -183,7 +318,7 @@ function NoteRow({ note }: { note: PublicNoteListItem }) {
   return (
     <a href={`/s/${note.slug}`} className="group flex flex-col gap-1.5 py-5 transition-colors">
       <div className="flex items-baseline justify-between gap-4">
-        <h2 className="text-[16px] font-semibold leading-snug tracking-[-0.01em] text-[var(--text-primary)] transition-colors group-hover:text-[#3b82f6]">
+        <h2 className="text-[17px] font-semibold leading-snug tracking-[-0.01em] text-[var(--text-primary)] transition-colors group-hover:text-[#3b82f6]">
           {note.title || t('common.untitled_note')}
         </h2>
         <time className="shrink-0 text-[12px] tabular text-[var(--text-quaternary)]">
