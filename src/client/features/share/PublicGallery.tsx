@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { LogIn, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import type { PublicNoteListItem } from '@shared/types'
 import { api } from '../../lib/api'
 import { cn } from '../../lib/cn'
@@ -7,6 +7,7 @@ import { shortTime } from '../../lib/time'
 import { Avatar, Logo, Spinner } from '../../components/primitives'
 import { Empty } from '../../components/feedback'
 import { t } from '../../lib/i18n'
+import { PUBLIC_NAV_LINKS } from '@shared/site-config'
 
 export function PublicGallery() {
   const [notes, setNotes] = useState<PublicNoteListItem[] | null>(null)
@@ -34,14 +35,6 @@ export function PublicGallery() {
       if (note.folder) set.add(note.folder)
     }
     return [...set].sort()
-  }, [notes])
-
-  const folderCounts = useMemo(() => {
-    const map = new Map<string, number>()
-    for (const note of notes ?? []) {
-      if (note.folder) map.set(note.folder, (map.get(note.folder) ?? 0) + 1)
-    }
-    return map
   }, [notes])
 
   const tagCounts = useMemo(() => {
@@ -82,35 +75,50 @@ export function PublicGallery() {
   return (
     <div className="min-h-full overflow-y-auto bg-[var(--bg-base)]">
       <header className="sticky top-0 z-10 border-b border-[var(--border-subtle)] bg-[var(--bg-base)]/85 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-[1120px] items-center gap-4 px-4 md:px-6">
-          <a href="/" className="flex items-center gap-2.5">
-            <Logo size={30} />
-            <span className="text-[17px] font-bold tracking-[-0.01em] text-[var(--text-primary)]">
+        <div className="mx-auto flex h-14 max-w-[1120px] items-center gap-4 px-4 md:px-6">
+          <a href="/" className="flex shrink-0 items-center gap-2.5">
+            <Logo size={28} />
+            <span className="hidden text-[16px] font-bold tracking-[-0.01em] text-[var(--text-primary)] sm:inline">
               {t('common.product_name')}
             </span>
           </a>
-          <nav className="hidden items-center gap-1 md:flex">
-            <a
-              href="/"
-              className="rounded-full px-3 py-1.5 text-[13px] font-medium text-[var(--text-primary)]"
-            >
+          <nav className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto">
+            <NavItem active={activeFolder === null} onClick={() => setActiveFolder(null)}>
               {t('public.home')}
-            </a>
+            </NavItem>
+            {folders.map((folder) => (
+              <NavItem key={folder} active={activeFolder === folder} onClick={() => setActiveFolder(folder)}>
+                {folder}
+              </NavItem>
+            ))}
+            {PUBLIC_NAV_LINKS.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                target="_blank"
+                rel="noreferrer"
+                className="shrink-0 whitespace-nowrap px-3 py-1.5 text-[13px] font-medium text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-primary)]"
+              >
+                {t(link.labelKey)}
+              </a>
+            ))}
           </nav>
-          <span className="flex-1" />
-          <SearchBox value={query} onChange={setQuery} className="hidden md:block" />
+          <SearchBox value={query} onChange={setQuery} className="hidden shrink-0 md:block" />
           <a
             href="/login"
-            className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full border border-[var(--border-default)] bg-[var(--bg-surface)] px-4 text-[13px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[#3b82f6]/40 hover:text-[#3b82f6]"
+            className="shrink-0 bg-gradient-to-r from-[#3b82f6] to-[#22d3ee] bg-clip-text text-[13.5px] font-semibold tracking-[-0.01em] text-transparent transition-opacity hover:opacity-70"
           >
-            <LogIn size={15} />
             {t('public.sign_in')}
           </a>
         </div>
       </header>
 
       <div className="mx-auto max-w-[1120px] px-4 md:px-6">
-        <section className="py-10 md:py-14">
+        <section className="relative py-10 md:py-14">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-24 top-0 size-72 rounded-full bg-[radial-gradient(circle,rgba(79,141,247,0.10),transparent_70%)]"
+          />
           <h1 className="text-[30px] font-bold tracking-[-0.02em] text-[var(--text-primary)] md:text-[40px]">
             {t('common.product_name')}
           </h1>
@@ -148,13 +156,6 @@ export function PublicGallery() {
           </main>
 
           <aside className="space-y-6">
-            <CategoriesWidget
-              folders={folders}
-              counts={folderCounts}
-              total={notes?.length ?? 0}
-              activeFolder={activeFolder}
-              onSelect={setActiveFolder}
-            />
             {sortedTags.length > 0 && (
               <TagsWidget tags={sortedTags} counts={tagCounts} activeTag={activeTag} onSelect={setActiveTag} />
             )}
@@ -186,9 +187,37 @@ function SearchBox({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={t('public.search_placeholder')}
-        className="h-9 w-full rounded-full border border-[var(--border-default)] bg-[var(--bg-surface)] pl-9 pr-3 text-[12.5px] text-[var(--text-primary)] placeholder:text-[var(--text-quaternary)] transition-colors focus:border-[#3b82f6] focus:outline-none md:w-56"
+        className="h-9 w-full rounded-full border border-[var(--border-default)] bg-[var(--bg-surface)] pl-9 pr-3 text-[12.5px] text-[var(--text-primary)] placeholder:text-[var(--text-quaternary)] transition-colors focus:border-[#3b82f6] focus:outline-none md:w-52"
       />
     </label>
+  )
+}
+
+function NavItem({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'relative shrink-0 whitespace-nowrap px-3 py-1.5 text-[13px] font-medium transition-colors',
+        active
+          ? 'text-[var(--text-primary)]'
+          : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]',
+      )}
+    >
+      {children}
+      {active && (
+        <span className="pointer-events-none absolute inset-x-2 bottom-0 h-[2px] rounded-full bg-gradient-to-r from-[#3b82f6] to-[#22d3ee]" />
+      )}
+    </button>
   )
 }
 
@@ -200,52 +229,6 @@ function Widget({ title, children }: { title: string; children: React.ReactNode 
       </h3>
       {children}
     </section>
-  )
-}
-
-function CategoriesWidget({
-  folders,
-  counts,
-  total,
-  activeFolder,
-  onSelect,
-}: {
-  folders: string[]
-  counts: Map<string, number>
-  total: number
-  activeFolder: string | null
-  onSelect: (folder: string | null) => void
-}) {
-  return (
-    <Widget title={t('public.categories')}>
-      <button
-        type="button"
-        onClick={() => onSelect(null)}
-        className={cn(
-          'flex w-full items-center justify-between rounded-[8px] px-2.5 py-2 text-left text-[13px] transition-colors',
-          activeFolder === null ? 'bg-[#3b82f6]/10 font-medium text-[#2563eb]' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]',
-        )}
-      >
-        <span>{t('public.all')}</span>
-        <span className="text-[11px] tabular text-[var(--text-quaternary)]">{total}</span>
-      </button>
-      {folders.map((folder) => (
-        <button
-          key={folder}
-          type="button"
-          onClick={() => onSelect(folder)}
-          className={cn(
-            'flex w-full items-center justify-between rounded-[8px] px-2.5 py-2 text-left text-[13px] transition-colors',
-            activeFolder === folder
-              ? 'bg-[#3b82f6]/10 font-medium text-[#2563eb]'
-              : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]',
-          )}
-        >
-          <span className="truncate">{folder}</span>
-          <span className="text-[11px] tabular text-[var(--text-quaternary)]">{counts.get(folder) ?? 0}</span>
-        </button>
-      ))}
-    </Widget>
   )
 }
 
@@ -292,24 +275,17 @@ function TagsWidget({
 function AboutWidget() {
   return (
     <Widget title={t('public.about')}>
-      <div className="flex items-center gap-2.5">
-        <Logo size={34} />
+      <div className="flex items-start gap-2.5">
+        <Logo size={32} />
         <div className="min-w-0">
           <div className="text-[13.5px] font-semibold text-[var(--text-primary)]">
             {t('common.product_name')}
           </div>
-          <div className="text-[11.5px] leading-relaxed text-[var(--text-tertiary)]">
+          <p className="mt-1 text-[12px] leading-relaxed text-[var(--text-tertiary)]">
             {t('public.hero_subtitle')}
-          </div>
+          </p>
         </div>
       </div>
-      <a
-        href="/login"
-        className="mt-4 flex h-9 w-full items-center justify-center gap-2 rounded-[var(--r-md)] bg-[#2563eb] text-[13px] font-medium text-white transition-colors hover:bg-[#1d4ed8]"
-      >
-        <LogIn size={14} />
-        {t('public.sign_in')}
-      </a>
     </Widget>
   )
 }
