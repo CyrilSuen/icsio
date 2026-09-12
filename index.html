@@ -16,7 +16,7 @@
 
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235a9cf8'/%3E%3Cstop offset='1' stop-color='%231d4ed8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='2.5' y='2.5' width='27' height='27' rx='8.5' fill='url(%23g)'/%3E%3Cg fill='%23fff'%3E%3Crect x='7' y='9' width='2' height='2'/%3E%3Crect x='9' y='9' width='2' height='2'/%3E%3Crect x='11' y='9' width='2' height='2'/%3E%3Crect x='9' y='11' width='2' height='2'/%3E%3Crect x='9' y='13' width='2' height='2'/%3E%3Crect x='9' y='15' width='2' height='2'/%3E%3Crect x='9' y='17' width='2' height='2'/%3E%3Crect x='9' y='19' width='2' height='2'/%3E%3Crect x='7' y='21' width='2' height='2'/%3E%3Crect x='9' y='21' width='2' height='2'/%3E%3Crect x='11' y='21' width='2' height='2'/%3E%3Crect x='19' y='9' width='2' height='2'/%3E%3Crect x='21' y='9' width='2' height='2'/%3E%3Crect x='23' y='9' width='2' height='2'/%3E%3Crect x='25' y='9' width='2' height='2'/%3E%3Crect x='17' y='11' width='2' height='2'/%3E%3Crect x='17' y='13' width='2' height='2'/%3E%3Crect x='17' y='15' width='2' height='2'/%3E%3Crect x='17' y='17' width='2' height='2'/%3E%3Crect x='17' y='19' width='2' height='2'/%3E%3Crect x='19' y='21' width='2' height='2'/%3E%3Crect x='21' y='21' width='2' height='2'/%3E%3Crect x='23' y='21' width='2' height='2'/%3E%3Crect x='25' y='21' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%234f8df7'/%3E%3Cstop offset='.52' stop-color='%237fb0ff'/%3E%3Cstop offset='1' stop-color='%23eaf3ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='5' y='5' width='54' height='54' rx='17' fill='url(%23g)' stroke='%231d4ed8' stroke-opacity='.14'/%3E%3Cg fill='none' stroke='%23fff' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='19.5' y1='24' x2='19.5' y2='40'/%3E%3Cline x1='15' y1='24' x2='24' y2='24'/%3E%3Cline x1='15' y1='40' x2='24' y2='40'/%3E%3Cpath d='M 47 25.5 A 9.5 9.5 0 1 0 47 38.5'/%3E%3C/g%3E%3C/svg%3E"
     />
 
 
@@ -87,15 +87,32 @@
   </head>
   <body>
     <div id="boot" aria-hidden="true">
-      <svg viewBox="0 0 32 32" fill="none">
+      <svg viewBox="0 0 64 64" fill="none">
         <defs>
           <linearGradient id="boot-grad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#5a9cf8" />
-            <stop offset="1" stop-color="#1d4ed8" />
+            <stop offset="0" stop-color="#4f8df7" />
+            <stop offset="0.52" stop-color="#7fb0ff" />
+            <stop offset="1" stop-color="#eaf3ff" />
           </linearGradient>
+          <linearGradient id="boot-sheen" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffffff" stop-opacity="0.5" />
+            <stop offset="0.5" stop-color="#ffffff" stop-opacity="0" />
+          </linearGradient>
+          <clipPath id="boot-clip">
+            <rect x="5" y="5" width="54" height="54" rx="17" />
+          </clipPath>
         </defs>
-        <rect x="2.5" y="2.5" width="27" height="27" rx="8.5" fill="url(#boot-grad)" />
-        <g fill="#ffffff"><rect x="5" y="7" width="10" height="2"/><rect x="5" y="9" width="10" height="2"/><rect x="9" y="11" width="4" height="10"/><rect x="5" y="21" width="10" height="2"/><rect x="5" y="23" width="10" height="2"/><rect x="17" y="7" width="10" height="2"/><rect x="17" y="9" width="10" height="2"/><rect x="17" y="11" width="4" height="10"/><rect x="17" y="21" width="10" height="2"/><rect x="17" y="23" width="10" height="2"/></g>
+        <rect x="5" y="5" width="54" height="54" rx="17" fill="url(#boot-grad)" />
+        <rect x="5" y="5" width="54" height="54" rx="17" fill="none" stroke="#1d4ed8" stroke-opacity="0.14" stroke-width="1.5" />
+        <g clip-path="url(#boot-clip)">
+          <rect x="5" y="5" width="54" height="30" fill="url(#boot-sheen)" />
+        </g>
+        <g fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19.5" y1="24" x2="19.5" y2="40" />
+          <line x1="15" y1="24" x2="24" y2="24" />
+          <line x1="15" y1="40" x2="24" y2="40" />
+          <path d="M 47 25.5 A 9.5 9.5 0 1 0 47 38.5" />
+        </g>
       </svg>
     </div>
     <div id="root"></div>

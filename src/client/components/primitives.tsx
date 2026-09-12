@@ -4,16 +4,13 @@ import { prettyCombo } from '../lib/hotkeys'
 import { resolveAvatarSource } from '../lib/avatar'
 
 
-const LOGO_BARS: ReadonlyArray<readonly [number, number, number, number]> = [
-  [5, 7, 10, 2], [5, 9, 10, 2], [9, 11, 4, 10], [5, 21, 10, 2], [5, 23, 10, 2],
-  [17, 7, 10, 2], [17, 9, 10, 2], [17, 11, 4, 10], [17, 21, 10, 2], [17, 23, 10, 2],
-]
-
 export function Logo({ size = 20, className }: { size?: number; className?: string }) {
   const gradientId = useId().replace(/[^a-zA-Z0-9_-]/g, '')
+  const sheenId = `${gradientId}-sheen`
+  const clipId = `${gradientId}-clip`
   return (
     <svg
-      viewBox="0 0 32 32"
+      viewBox="0 0 64 64"
       width={size}
       height={size}
       className={cn('ink-logo', className)}
@@ -21,14 +18,39 @@ export function Logo({ size = 20, className }: { size?: number; className?: stri
     >
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#5a9cf8" />
-          <stop offset="1" stopColor="#1d4ed8" />
+          <stop offset="0" stopColor="#4f8df7" />
+          <stop offset="0.52" stopColor="#7fb0ff" />
+          <stop offset="1" stopColor="#eaf3ff" />
         </linearGradient>
+        <linearGradient id={sheenId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffffff" stopOpacity="0.5" />
+          <stop offset="0.5" stopColor="#ffffff" stopOpacity="0" />
+        </linearGradient>
+        <clipPath id={clipId}>
+          <rect x="5" y="5" width="54" height="54" rx="17" />
+        </clipPath>
       </defs>
-      <rect x="2.5" y="2.5" width="27" height="27" rx="8.5" fill={`url(#${gradientId})`} />
-      {LOGO_BARS.map(([x, y, width, height], index) => (
-        <rect key={index} x={x} y={y} width={width} height={height} fill="#ffffff" />
-      ))}
+      <rect x="5" y="5" width="54" height="54" rx="17" fill={`url(#${gradientId})`} />
+      <rect
+        x="5"
+        y="5"
+        width="54"
+        height="54"
+        rx="17"
+        fill="none"
+        stroke="#1d4ed8"
+        strokeOpacity="0.14"
+        strokeWidth="1.5"
+      />
+      <g clipPath={`url(#${clipId})`}>
+        <rect x="5" y="5" width="54" height="30" fill={`url(#${sheenId})`} />
+      </g>
+      <g fill="none" stroke="#ffffff" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="19.5" y1="24" x2="19.5" y2="40" />
+        <line x1="15" y1="24" x2="24" y2="24" />
+        <line x1="15" y1="40" x2="24" y2="40" />
+        <path d="M 47 25.5 A 9.5 9.5 0 1 0 47 38.5" />
+      </g>
     </svg>
   )
 }

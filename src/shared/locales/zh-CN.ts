@@ -903,6 +903,7 @@ export const ZH_CN_MESSAGES = {
     "share.loading_share_status": "读取分享状态…",
     "share.could_not_load_sharing_status": "无法读取分享状态",
     "public.sign_in": "登录",
+    "public.hero_kicker": "公开笔记",
     "public.all": "全部",
     "public.empty_title": "还没有公开笔记",
     "public.empty_desc": "分享笔记时开启「公开上榜」，它就会出现在这里。",

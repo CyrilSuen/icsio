@@ -186,7 +186,7 @@ export function SharePage({ slug }: {
       <header className="sticky top-0 z-10 border-b border-[var(--border-subtle)] bg-[var(--bg-base)]/85 pt-[env(safe-area-inset-top)] backdrop-blur">
         <div className="mx-auto flex h-12 max-w-[1280px] items-center gap-3 px-4 md:px-5">
           <span className="flex items-center gap-1.5 text-[var(--accent)]">
-            <Logo size={15}/>
+            <Logo size={18}/>
           </span>
           <span className="text-[12.5px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
             {note?.site.name ?? 'icsio'}
@@ -245,7 +245,7 @@ export function SharePage({ slug }: {
 
             <footer className="mt-16 border-t border-[var(--border-subtle)] pt-6 text-center">
               <a href="/" className="inline-flex items-center gap-1.5 text-[11.5px] text-[var(--text-quaternary)] transition-colors hover:text-[var(--accent)]">
-                <Logo size={12}/>{t("share.shared_via_site", { site: note.site.name })}</a>
+                <Logo size={14}/>{t("share.shared_via_site", { site: note.site.name })}</a>
             </footer>
           </article>) : null}
       </main>

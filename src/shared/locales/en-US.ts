@@ -902,6 +902,7 @@ export const EN_US_MESSAGES = {
     "share.loading_share_status": "Loading share status…",
     "share.could_not_load_sharing_status": "Could not load sharing status",
     "public.sign_in": "Sign in",
+    "public.hero_kicker": "Public notes",
     "public.all": "All",
     "public.empty_title": "No public notes yet",
     "public.empty_desc": "When sharing a note, enable public listing and it will appear here.",
